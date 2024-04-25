@@ -1,5 +1,8 @@
 package com.example.pfe.Domain;
 
+import lombok.Getter;
+
+@Getter
 public enum DayOfWeek {
     MONDAY,
     TUESDAY,
@@ -8,5 +11,7 @@ public enum DayOfWeek {
     FRIDAY,
     SATURDAY,
     SUNDAY;
+
+
 
 }

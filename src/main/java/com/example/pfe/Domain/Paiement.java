@@ -1,6 +1,6 @@
 package com.example.pfe.Domain;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
