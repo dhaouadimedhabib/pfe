@@ -4,4 +4,5 @@ public enum RoleName {
     ADMIN,
     PROFESSIONAL,
     CLIENT
+
 }
