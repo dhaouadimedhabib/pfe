@@ -60,14 +60,14 @@ public class ProfessionnelController {
     }
 
 
-    @PostMapping("/planifier-agenda-annuel")
-    public ResponseEntity<String> planifierAgendaAnnuel(@RequestHeader("Authorization") String token, @RequestBody Map<LocalDate, Map<DayOfWeek, List<Disponibilite>>> agendaAnnuel) {
-        boolean result = professionnelService.planifierAgendaAnnuel(token, agendaAnnuel);
-
-        if (result) {
-            return ResponseEntity.ok("Agenda annuel planifié avec succès.");
+    @PostMapping("/planifierAgenda/{professionnelId}")
+    public ResponseEntity<String> planifierAgenda(@PathVariable Long professionnelId,
+                                                  @RequestBody Map<LocalDate, Map<DayOfWeek, List<Disponibilite>>> agendaAnnuel) {
+        boolean resultat = professionnelService.planifierAgendaAnnuel(professionnelId, agendaAnnuel);
+        if (resultat) {
+            return ResponseEntity.ok("Agenda annuel planifié avec succès pour le professionnel ID: " + professionnelId);
         } else {
-            return ResponseEntity.badRequest().body("Erreur lors de la planification de l'agenda annuel.");
+            return ResponseEntity.badRequest().body("Échec de la planification de l'agenda annuel pour le professionnel ID: " + professionnelId);
         }
     }
 

@@ -5,6 +5,7 @@ import com.example.pfe.Domain.Professionnel;
 import com.example.pfe.Domain.User;
 import com.example.pfe.Model.DisponibiliteDTO;
 import com.example.pfe.Repo.DisponibiliteRepo;
+import com.example.pfe.Repo.ProfessionnelRepo;
 import com.example.pfe.Repo.UserRepo;
 import com.example.pfe.security.jwt.JwtUtils;
 import io.jsonwebtoken.Jwts;
@@ -26,6 +27,8 @@ public class DisponibiliteService {
     private String jwtSecret;
     @Autowired
     UserRepo userRepo;
+    @Autowired
+    ProfessionnelRepo professionnelRepo;
 
     private DisponibiliteDTO mapToDTO(final Disponibilite disponibilite, final DisponibiliteDTO disponibiliteDTO) {
         disponibiliteDTO.setIdDisponibilite(disponibilite.getIdDisponibilite());
@@ -45,7 +48,7 @@ public class DisponibiliteService {
                 .map(disponibilite -> mapToDTO(disponibilite, new DisponibiliteDTO()))
                 .collect(Collectors.toList());
     }
-
+/*
     //Récupérer toutes les disponibilités de chaque professionnel
     public List<DisponibiliteDTO> findAllByProfessionnelDTO(String token) {
         // Récupérer le nom d'utilisateur à partir du jeton JWT
@@ -73,7 +76,23 @@ public class DisponibiliteService {
                 .map(disponibilite -> mapToDTO(disponibilite, new DisponibiliteDTO()))
                 .collect(Collectors.toList());
     }
+*/
+    public List<DisponibiliteDTO> findAllByProfessionnelDTO(Long idProfessionnel) {
+        // Rechercher le professionnel par son identifiant
+        Professionnel professionnel = professionnelRepo.findById(idProfessionnel).orElse(null);
+        if (professionnel == null) {
+            System.out.println("Erreur : Professionnel non trouvé.");
+            return Collections.emptyList();
+        }
 
+        // Récupérer les disponibilités associées à ce professionnel
+        List<Disponibilite> disponibilites = disponibiliteRepo.findAllByProfessionnel(professionnel);
+
+        // Mapper les disponibilités en DTO
+        return disponibilites.stream()
+                .map(disponibilite -> mapToDTO(disponibilite, new DisponibiliteDTO()))
+                .collect(Collectors.toList());
+    }
 
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();

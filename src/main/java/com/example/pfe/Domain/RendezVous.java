@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalTime;
 
 @NoArgsConstructor
@@ -18,6 +18,8 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @AllArgsConstructor
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RendezVous {
     @Id
     @Column(nullable = false, updatable = false)
@@ -26,6 +28,7 @@ public class RendezVous {
     private LocalDate date;
     private LocalTime debut; // Date et heure de début du rendez-vous
     private LocalTime fin;
+    private String nomClient;
     @Enumerated(EnumType.STRING)
     private Statut statuts;
 
@@ -38,7 +41,13 @@ public class RendezVous {
     @ManyToOne
     @JoinColumn(name = "commentaire_id")
     private Commentaire commentaire;
-    @ManyToOne
-    @JoinColumn(name = "client_id")
-    private Client client;
+
+    public String getNomClient() {
+        return nomClient;
+    }
+
+    public void setNomClient(String nomClient) {
+        this.nomClient = nomClient;
+    }
+
 }

@@ -32,10 +32,6 @@ public class Professionnel  {
         this.servicesProposés = servicesProposés;
     }
 
-
-
-
-
     public List<RendezVous> getRendezVous() {
         return rendezVous;
     }

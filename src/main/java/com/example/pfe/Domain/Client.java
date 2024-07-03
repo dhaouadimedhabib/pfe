@@ -59,7 +59,6 @@ public class Client  {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     private User user;
-    @OneToMany(mappedBy = "client")
-    private List<RendezVous> rendezVous;
+
 
 }

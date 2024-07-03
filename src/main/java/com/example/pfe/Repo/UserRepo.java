@@ -1,10 +1,12 @@
 package com.example.pfe.Repo;
 
+import com.example.pfe.Domain.RoleName;
 import com.example.pfe.Domain.User;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
@@ -42,4 +44,12 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Modifying
     @Query(value = "UPDATE user SET enabled = ?1 WHERE id = ?2", nativeQuery = true)
     Integer updateEnabled(Long enabled, Long id);
+    @Transactional
+    void deleteByUserId(Long userId);
+
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.roleName = :roleName")
+    List<User> findUsersByRoleName(@Param("roleName") RoleName roleName);
+
+    User findByUserId(Long userId);
+
 }

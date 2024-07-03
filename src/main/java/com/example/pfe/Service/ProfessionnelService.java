@@ -66,21 +66,16 @@ public class ProfessionnelService {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
-    public boolean planifierAgendaAnnuel(String token, Map<LocalDate, Map<DayOfWeek, List<Disponibilite>>> agendaAnnuel) {
-        // Récupérer le nom d'utilisateur à partir du jeton JWT
-        String username = getUserNameFromJwtToken(token);
-
-        // Rechercher l'utilisateur correspondant dans la base de données par son nom d'utilisateur
-        User user = userRepo.findByUsername(username);
-        if (user == null) {
-            System.out.println("Erreur : Utilisateur non trouvé.");
+    public boolean planifierAgendaAnnuel(Long professionnelId, Map<LocalDate, Map<DayOfWeek, List<Disponibilite>>> agendaAnnuel) {
+        // Récupérer le professionnel directement par son ID
+        Professionnel professionnel = professionnelRepo.findById(professionnelId).orElse(null);
+        if (professionnel == null) {
+            System.out.println("Erreur : Professionnel non trouvé.");
             return false;
         }
 
-        // Récupérer le professionnel associé à l'utilisateur
-        Professionnel professionnel = user.getProfessionnel();
-        if (professionnel == null || agendaAnnuel == null || agendaAnnuel.isEmpty()) {
-            System.out.println("Erreur : Professionnel non trouvé ou agenda annuel vide.");
+        if (agendaAnnuel == null || agendaAnnuel.isEmpty()) {
+            System.out.println("Erreur : Agenda annuel vide.");
             return false;
         }
 
@@ -110,6 +105,5 @@ public class ProfessionnelService {
 
         return true;
     }
-
 
 }

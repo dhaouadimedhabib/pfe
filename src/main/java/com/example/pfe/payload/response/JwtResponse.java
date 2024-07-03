@@ -1,5 +1,7 @@
 package com.example.pfe.payload.response;
 
+import com.example.pfe.Domain.Professionnel;
+
 import java.util.List;
 
 public class JwtResponse {
@@ -8,12 +10,16 @@ public class JwtResponse {
     private Long id;
     private String username;
     private List<String> roles;
+    private Long idProfessionnel;
 
-    public JwtResponse(String accessToken, Long id, String username,  List<String> roles) {
+
+    public JwtResponse(String accessToken, Long id, String username, Long idProfessionnel, List<String> roles) {
         this.token = accessToken;
         this.id = id;
         this.username = username;
         this.roles = roles;
+        this.idProfessionnel = idProfessionnel;
+
     }
 
     public String getAccessToken() {
@@ -41,6 +47,7 @@ public class JwtResponse {
     }
 
 
+
     public String getUsername() {
         return username;
     }
@@ -49,7 +56,16 @@ public class JwtResponse {
         this.username = username;
     }
 
+    public Long getIdProfessionnel() {
+        return idProfessionnel;
+    }
+
+    public void setIdProfessionnel(Long idProfessionnel) {
+        this.idProfessionnel = idProfessionnel;
+    }
+
     public List<String> getRoles() {
         return roles;
     }
+
 }
