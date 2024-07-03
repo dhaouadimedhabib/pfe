@@ -4,4 +4,5 @@ public enum Statut {
     EN_ATTENTE,
     COMPLET,
     ECHEC
+
 }

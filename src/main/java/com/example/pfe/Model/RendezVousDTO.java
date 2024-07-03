@@ -21,4 +21,6 @@ public class RendezVousDTO {
     private Long professionalId;
     private Long paiementId;
     private Long commentaireId;
+
+   private  String nomClient;
 }

@@ -1,0 +1,62 @@
+package com.example.pfe.Contoller;
+
+import com.example.pfe.Domain.User;
+import com.example.pfe.Service.UserService;
+import com.example.pfe.exception.ResourceNotFoundException;
+import com.example.pfe.payload.response.MessageResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+
+@Service
+@CrossOrigin(origins = "*")
+@RestController
+@RequestMapping("/api/user")
+
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUser(@Valid @RequestBody User user) {
+        boolean isUpdated = userService.updateUser(user);
+        if (isUpdated) {
+            return ResponseEntity.ok(new MessageResponse("User updated successfully!"));
+        } else {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found!"));
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        boolean isDeleted = userService.deleteUser(id);
+        if (isDeleted) {
+            return ResponseEntity.ok(new MessageResponse("User deleted successfully!"));
+        } else {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found or could not be deleted!"));
+        }
+    }
+    @GetMapping("/professionnels")
+    public ResponseEntity<List<User>> getAllProfessionnels() {
+        List<User> professionnels = userService.getAllProfessionnels();
+        return ResponseEntity.ok(professionnels);
+    }
+
+    @GetMapping("/users/{userId}")
+    public User getUserById(@PathVariable Long userId) {
+        return userService.getUserById(userId);
+    }
+}
+
+

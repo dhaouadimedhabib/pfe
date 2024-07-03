@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableAutoConfiguration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Override
+   @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
 
@@ -21,8 +21,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // Autoriser l'accès à /api/auth/signin sans authentification
                 .antMatchers("/api/auth/signin").permitAll()
                 .antMatchers("/api/auth/signup").permitAll()
-                //.antMatchers("/**").permitAll()
-                .antMatchers("/api/auth/signin", "/api/auth/signup").permitAll()
+                .antMatchers("/api/RendezVous/*").permitAll()
+                .antMatchers("/api/Professionnel/*").permitAll()
+                .antMatchers("/api/reclamation/*").permitAll()
+                .antMatchers("/api/Disponibilite/*").permitAll()
+                .antMatchers("/api/user/*").permitAll()
+                .antMatchers("/**").permitAll()
                 // Toutes les autres requêtes nécessitent une authentification
                 .anyRequest().authenticated()
                 .and()

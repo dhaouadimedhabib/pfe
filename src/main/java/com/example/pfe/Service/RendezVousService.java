@@ -19,6 +19,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,6 +59,7 @@ public class RendezVousService {
         if (rendezVous.getCommentaire() != null) {
             rendezVousDTO.setCommentaireId(rendezVous.getCommentaire().getCommentaireId());
         }
+        rendezVousDTO.setNomClient(rendezVous.getNomClient()); // Ajoutez cette ligne
 
         return rendezVousDTO;
     }
@@ -95,6 +97,7 @@ public class RendezVousService {
         this.rendezVousRepo = rendezVousRepo;
         this.jwtUtils = jwtUtils;
     }
+
     public List<RendezVousDTO> findAllRendezVousByProfessionnel(String token) {
         // Utiliser getProfessionnelFromJwtToken pour récupérer le professionnel
         Professionnel professionnel = jwtUtils.getProfessionnelFromJwtToken(token);
@@ -118,8 +121,26 @@ public class RendezVousService {
     }
 
 
+    public List<RendezVousDTO> findAllRendezVousByProfessionnelId(Long professionnelId) {
+        // Récupérer le professionnel à partir de son ID
+        Professionnel professionnel = professionnelRepo.findById(professionnelId).orElse(null);
 
-    public boolean ajouterRendezVous(String token, RendezVousDTO nouveauRendezVousDTO) {
+        if (professionnel == null) {
+            // Si aucun professionnel n'est trouvé, retourner une liste vide
+            System.out.println("Erreur : Professionnel non trouvé.");
+            return Collections.emptyList();
+        }
+
+        // Récupérer les rendez-vous associés à ce professionnel
+        List<RendezVous> rendezVousList = rendezVousRepo.findAllByProfessional(professionnel);
+
+        // Mapper les rendez-vous en DTO
+        return rendezVousList.stream()
+                .map(rendezVous -> mapToDTO(rendezVous))
+                .collect(Collectors.toList());
+    }
+
+    /*public boolean ajouterRendezVous(String token, RendezVousDTO nouveauRendezVousDTO) {
         // Etape 1: Identifier le professionnel à partir du token JWT
         String username = getUserNameFromJwtToken(token);
         User user = userRepo.findByUsername(username);
@@ -165,23 +186,97 @@ public class RendezVousService {
         rendezVousRepo.save(nouveauRendezVous);
 
         return true;
+    }*/
+
+
+    public boolean ajouterRendezVous(Long professionnelId, RendezVousDTO nouveauRendezVousDTO) {
+        // Etape 1: Récupérer le professionnel à partir de son ID
+        Professionnel professionnel = professionnelRepo.findById(professionnelId).orElse(null);
+        if (professionnel == null) {
+            System.out.println("Erreur : Professionnel non trouvé.");
+            return false;
+        }
+
+        // Etape 2: Vérifier la disponibilité du créneau
+        List<Disponibilite> disponibilites = disponibiliteRepo.findAllByProfessionnel(professionnel);
+        boolean estDansDisponibilite = disponibilites.stream().anyMatch(disponibilite ->
+                nouveauRendezVousDTO.getDate().isEqual(disponibilite.getDate()) &&
+                        !nouveauRendezVousDTO.getDebut().isBefore(disponibilite.getHeureDebut()) &&
+                        !nouveauRendezVousDTO.getFin().isAfter(disponibilite.getHeureFin())
+        );
+
+        if (!estDansDisponibilite) {
+            System.out.println("Le créneau demandé n'est pas disponible dans les disponibilités du professionnel.");
+            return false;
+        }
+
+        // Etape 3: Vérifier les chevauchements de rendez-vous
+        List<RendezVous> rendezVousExistants = rendezVousRepo.findAllByProfessional(professionnel);
+        boolean estCreneauLibre = rendezVousExistants.stream().noneMatch(rendezVous ->
+                !nouveauRendezVousDTO.getFin().isBefore(rendezVous.getDebut()) && !nouveauRendezVousDTO.getDebut().isAfter(rendezVous.getFin())
+        );
+
+        if (!estCreneauLibre) {
+            System.out.println("Le créneau n'est pas libre, il y a un chevauchement avec un autre rendez-vous.");
+            return false;
+        }
+
+        // Etape 4: Sauvegarder le nouveau rendez-vous
+        RendezVous nouveauRendezVous = new RendezVous();
+        nouveauRendezVous.setDate(nouveauRendezVousDTO.getDate());
+        nouveauRendezVous.setDebut(nouveauRendezVousDTO.getDebut());
+        nouveauRendezVous.setFin(nouveauRendezVousDTO.getFin());
+        nouveauRendezVous.setStatuts(nouveauRendezVousDTO.getStatuts());
+        nouveauRendezVous.setProfessional(professionnel);
+        rendezVousRepo.save(nouveauRendezVous);
+
+        return true;
     }
 
 
 
-
-    public List<RendezVousDTO> findAllRendezVous(String token) {
-        // Vérifier la validité du token
-        if (!jwtUtils.validateJwtToken(token)) {
-            System.out.println("Erreur : Token JWT invalide.");
-            return Collections.emptyList();
-        }
-
+    public List<RendezVousDTO> findAllRendezVous() {
+        // Récupérer tous les rendez-vous de la base de données
         List<RendezVous> list = rendezVousRepo.findAll();
+
+        // Transformer les objets RendezVous en RendezVousDTO
         return list.stream()
                 .map(rendezVous -> mapToDTO(rendezVous)) // Modification ici
                 .collect(Collectors.toList());
     }
+    public boolean supprimerRendezVous(Long rendezVousId) {
+        Optional<RendezVous> rendezVousOptional = rendezVousRepo.findById(rendezVousId);
+        if (rendezVousOptional.isPresent()) {
+            rendezVousRepo.delete(rendezVousOptional.get());
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+    public boolean updateRendezVous(RendezVous updatedRendezVous) {
+        Optional<RendezVous> existingRendezVousOptional = rendezVousRepo.findById(updatedRendezVous.getAppointmentId());
+        if (existingRendezVousOptional.isPresent()) {
+            RendezVous existingRendezVous = existingRendezVousOptional.get();
 
+            // Maintenir l'ID du professionnel (et d'autres champs que vous ne voulez pas modifier)
+            updatedRendezVous.setProfessional(existingRendezVous.getProfessional());
+
+            // Mettre à jour seulement les champs spécifiques
+            existingRendezVous.setDate(updatedRendezVous.getDate());
+            existingRendezVous.setDebut(updatedRendezVous.getDebut());
+            existingRendezVous.setFin(updatedRendezVous.getFin());
+            existingRendezVous.setStatuts(updatedRendezVous.getStatuts());
+
+            // Enregistrez l'objet mis à jour
+            rendezVousRepo.save(existingRendezVous);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Optional<RendezVous> findById(Long id) {
+        return rendezVousRepo.findById(id);
+    }
 }

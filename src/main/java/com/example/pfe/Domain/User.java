@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -56,7 +58,7 @@ public class User {
         this.enabled = enabled;
     }
 
-    public User(Long userId, String username, String password, String email, String numeroTel, Set<Role> roles, Client client) {
+    public User(Long userId, String username, String password, String email, String numeroTel, Set<Role> roles, Client client, Professionnel professionnel) {
         this.userId = userId;
         this.username = username;
         this.password = password;
@@ -64,7 +66,9 @@ public class User {
         this.numeroTel = numeroTel;
         this.roles = roles;
         this.client = client;
+        this.professionnel = professionnel;
     }
+
 
     public User(String username, String password) {
         this.username = username;
@@ -170,10 +174,15 @@ public class User {
     private Set<Role> roles = new HashSet<>();
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clientId")
+    @JsonIgnore
     private Client client;
     @OneToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "proffesionnelId") //
     private Professionnel professionnel;
 
-
+    @JsonProperty("professionnelId")
+    public Long getProfessionnelId() {
+        return professionnel != null ? professionnel.getIdProfessionnel() : null;
+    }
 }

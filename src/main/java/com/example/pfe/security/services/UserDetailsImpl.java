@@ -1,10 +1,10 @@
 package com.example.pfe.security.services;
 
+import com.example.pfe.Domain.Professionnel;
 import com.example.pfe.Domain.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -16,30 +16,32 @@ public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-
     private String username;
-    private User user; // Ajout d'un champ pour stocker l'objet User
+    private User user;
+    private Professionnel professionnel;
     @JsonIgnore
     private String password;
     private String email;
     private String firstName;
     private Collection<? extends GrantedAuthority> authorities;
 
-
     public UserDetailsImpl(Long id, String username, String password, String email, String firstName,
-                           Collection<? extends GrantedAuthority> authorities, User user) {
+                           Collection<? extends GrantedAuthority> authorities, User user, Professionnel professionnel) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
-        this.email =email;
+        this.email = email;
         this.firstName = firstName;
         this.user = user;
+        this.professionnel = professionnel;
     }
-    public com.example.pfe.Domain.User getUser() {
-        return user;
-    }
+
     public static UserDetailsImpl build(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))
                 .collect(Collectors.toList());
@@ -51,10 +53,10 @@ public class UserDetailsImpl implements UserDetails {
                 user.getEmail(),
                 user.getFirstName(),
                 authorities,
-                user // Ajout de l'objet User en tant que cinquième argument
+                user,
+                user.getProfessionnel()
         );
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -64,7 +66,6 @@ public class UserDetailsImpl implements UserDetails {
     public Long getId() {
         return id;
     }
-
 
     @Override
     public String getPassword() {
@@ -76,7 +77,17 @@ public class UserDetailsImpl implements UserDetails {
         return username;
     }
 
-    public String getEmail()  {return email;}
+    public String getEmail() {
+        return email;
+    }
+
+    public Professionnel getProfessionnel() {
+        return professionnel;
+    }
+
+    public Long getIdProfessionnel() {
+        return professionnel != null ? professionnel.getIdProfessionnel() : null;
+    }
 
     @Override
     public boolean isAccountNonExpired() {

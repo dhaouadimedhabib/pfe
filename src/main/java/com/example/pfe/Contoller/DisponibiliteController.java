@@ -27,11 +27,11 @@ public class DisponibiliteController {
         return disponibiliteService.findAllDisponibilites();
     }
 
-    @GetMapping("/disponibilitespro")
-    public ResponseEntity<List<DisponibiliteDTO>> getAllDisponibilitesByProfessionnelDTO(@RequestHeader("Authorization") String token) {
-        List<DisponibiliteDTO> disponibiliteDTOs = disponibiliteService.findAllByProfessionnelDTO(token);
+    @GetMapping("/disponibilitespro/{idProfessionnel}")
+    public ResponseEntity<List<DisponibiliteDTO>> getAllDisponibilitesByProfessionnelDTO(@PathVariable  Long idProfessionnel) {
+        List<DisponibiliteDTO> disponibiliteDTOs = disponibiliteService.findAllByProfessionnelDTO(idProfessionnel);
         if (disponibiliteDTOs.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(disponibiliteDTOs, HttpStatus.OK);
     }
