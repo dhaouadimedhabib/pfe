@@ -1,11 +1,13 @@
 package com.example.pfe.Domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.Null;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.util.List;
@@ -22,10 +24,14 @@ public class Disponibilite {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDisponibilite;
     @Enumerated(EnumType.STRING)
-
+    @Null
     private DayOfWeek jour;
-    private LocalTime heureDebut;
-    private LocalTime heureFin;
+    private LocalTime heureDebut1;
+    private LocalTime heureFin1;
+    @Column
+    private  LocalTime heureDebut2;
+    private  LocalTime heureFin2;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 
     private LocalDate date;
@@ -38,56 +44,78 @@ public class Disponibilite {
         this.idDisponibilite = idDisponibilite;
     }
 
+
+
+
+
     public DayOfWeek getJour() {
         return jour;
     }
 
-    public void setJour(DayOfWeek jour) {
-        this.jour = jour;
+    public LocalTime getHeureDebut1() {
+        return heureDebut1;
     }
 
-    public LocalTime getHeureDebut() {
-        return heureDebut;
+    public LocalTime getHeureFin1() {
+        return heureFin1;
     }
 
-    public void setHeureDebut(LocalTime heureDebut) {
-        this.heureDebut = heureDebut;
+    public LocalTime getHeuredebut2() {
+        return heureDebut2;
     }
 
-    public LocalTime getHeureFin() {
-        return heureFin;
-    }
-
-    public void setHeureFin(LocalTime heureFin) {
-        this.heureFin = heureFin;
+    public LocalTime getHeureFin2() {
+        return heureFin2;
     }
 
     public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
     public Professionnel getProfessionnel() {
         return professionnel;
+    }
+
+    public void setJour(DayOfWeek jour) {
+        this.jour = jour;
+    }
+
+    public void setHeureDebut1(LocalTime heureDebut1) {
+        this.heureDebut1 = heureDebut1;
+    }
+
+    public void setHeureFin1(LocalTime heureFin1) {
+        this.heureFin1 = heureFin1;
+    }
+
+    public void setHeuredebut2(LocalTime heuredebut2) {
+        this.heureDebut2 = heuredebut2;
+    }
+
+    public void setHeureFin2(LocalTime heureFin2) {
+        this.heureFin2 = heureFin2;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
     public void setProfessionnel(Professionnel professionnel) {
         this.professionnel = professionnel;
     }
 
-    public Disponibilite(Long idDisponibilite, DayOfWeek jour, LocalTime heureDebut, LocalTime heureFin, LocalDate date, Professionnel professionnel) {
-        this.idDisponibilite = idDisponibilite;
-        this.jour = jour;
-        this.heureDebut = heureDebut;
-        this.heureFin = heureFin;
+    public Disponibilite(LocalTime heureDebut1, LocalTime heureFin1, LocalTime heureDebut2, LocalTime heureFin2, LocalDate date, Professionnel professionnel) {
+        this.heureDebut1 = heureDebut1;
+        this.heureFin1 = heureFin1;
+        this.heureDebut2 = heureDebut2;
+        this.heureFin2 = heureFin2;
         this.date = date;
         this.professionnel = professionnel;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "professionnelId") // Assure-toi que le nom correspond à la colonne de clé étrangère
+    @JoinColumn(name = "professionnelId")
+    @JsonIgnore
     private Professionnel professionnel;
+
 }

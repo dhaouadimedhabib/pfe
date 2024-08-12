@@ -25,7 +25,7 @@ public interface DisponibiliteRepo extends JpaRepository<Disponibilite, Long> {
     @Query("delete from Disponibilite d where year(d.date) = :annee and d.professionnel.idProfessionnel = :professionnelId")
     void deleteByYearAndProfessionnel(int annee, Long professionnelId);
 
-
+    List<Disponibilite> findByDateAndProfessionnel(LocalDate date, Professionnel professionnel);
 
 
 }

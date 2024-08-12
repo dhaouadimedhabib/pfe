@@ -5,31 +5,28 @@ import com.example.pfe.Repo.ClientRepo;
 import com.example.pfe.Repo.ProfessionnelRepo;
 import com.example.pfe.Repo.RoleRepo;
 import com.example.pfe.Repo.UserRepo;
+import com.example.pfe.Service.*;
 import com.example.pfe.payload.request.LoginRequest;
+import com.example.pfe.payload.request.PasswordResetRequest;
 import com.example.pfe.payload.request.SignupRequest;
 import com.example.pfe.payload.response.JwtResponse;
 import com.example.pfe.payload.response.MessageResponse;
+import com.example.pfe.payload.response.PasswordChangeRequest;
 import com.example.pfe.security.jwt.JwtUtils;
 import com.example.pfe.security.services.UserDetailsImpl;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 
@@ -42,6 +39,8 @@ public class AuthController {
     UserRepo userRepo;
     @Autowired
     AuthenticationManager authenticationManager;
+    @Autowired
+    UserService userService;
 
     @Autowired
     RoleRepo roleRepo;
@@ -53,6 +52,10 @@ public class AuthController {
     ProfessionnelRepo professionnelRepo;
     @Autowired
     ClientRepo clientRepo;
+    @Autowired
+    private PasswordResetTokenService tokenService;
+    @Autowired
+    private EmailService emailService;
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -142,5 +145,31 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest request) {
+        String token = tokenService.createToken(request.getEmail());
+        emailService.sendPasswordResetEmail(request.getEmail(), token);
+
+        return ResponseEntity.ok("Password reset email sent");
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest request) {
+        // Valider le token
+        User user = tokenService.validateToken(request.getToken());
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+
+        // Changer le mot de passe
+        try {
+            userService.changePassword(user, request.getNewPassword());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error changing password: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok("Password changed successfully");
+    }
 
 }

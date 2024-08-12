@@ -46,6 +46,8 @@ public class User {
     @Size(max=50)
     private  String lastName;
 
+
+
     public User() {
     }
     private int enabled=0;

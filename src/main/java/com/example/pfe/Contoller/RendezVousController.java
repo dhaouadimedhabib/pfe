@@ -1,6 +1,7 @@
 package com.example.pfe.Contoller;
 
 import com.example.pfe.Domain.Client;
+import com.example.pfe.Domain.Professionnel;
 import com.example.pfe.Domain.RendezVous;
 import com.example.pfe.Model.RendezVousDTO;
 import com.example.pfe.Service.RendezVousService;
@@ -11,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,19 +24,6 @@ import java.util.Optional;
 public class RendezVousController {
     @Autowired
     private RendezVousService rendezVousService;
-
-/*
-    @GetMapping("/rendezvous")
-    public ResponseEntity<List<RendezVousDTO>> getAllRendezVousByProfessionnel(@RequestHeader("Authorization") String token) {
-        List<RendezVousDTO> rendezVousDTOs = rendezVousService.findAllRendezVousByProfessionnel(token);
-
-        if (rendezVousDTOs.isEmpty()) {
-            return ResponseEntity.noContent().build(); // Retourner un code HTTP 204 No Content
-        }
-
-        return ResponseEntity.ok(rendezVousDTOs); // Retourner la liste des rendez-vous avec le code HTTP 200 OK
-    }
-*/
 
     @GetMapping("/professionnel")
     public ResponseEntity<List<RendezVousDTO>> getRendezVousByProfessionnel(
@@ -55,36 +45,7 @@ public class RendezVousController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ArrayList<RendezVousDTO>());
         }
     }
-/*
-    @PostMapping("/ajouter-rendezvous")
-    public ResponseEntity<String> ajouterRendezVous(@RequestHeader("Authorization") String token, @RequestBody RendezVousDTO nouveauRendezVousDTO) {
-        String jwtToken = token.substring(7); // Retirer le préfixe "Bearer "
 
-        boolean ajoutReussi = rendezVousService.ajouterRendezVous(jwtToken, nouveauRendezVousDTO);
-
-        if (ajoutReussi) {
-            return ResponseEntity.ok("Le rendez-vous a été ajouté avec succès !");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible d'ajouter le rendez-vous. Veuillez vérifier les disponibilités et réessayer.");
-        }
-    }
-
-*/
-
-
-    @PostMapping("/ajouter/{professionnelId}")
-    public ResponseEntity<?> ajouterRendezVous(@PathVariable Long professionnelId, @RequestBody RendezVousDTO nouveauRendezVousDTO) {
-        try {
-            boolean ajoutReussi = rendezVousService.ajouterRendezVous(professionnelId, nouveauRendezVousDTO);
-            if (ajoutReussi) {
-                return ResponseEntity.ok("Le rendez-vous a été ajouté avec succès.");
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'ajout du rendez-vous.");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur lors de l'ajout du rendez-vous : " + e.getMessage());
-        }
-    }
 
 
 
@@ -141,5 +102,14 @@ public class RendezVousController {
         }
     }
 
+    @PostMapping("/ajouter/{professionnelId}")
+    public ResponseEntity<?> ajouterRendezVous(@PathVariable Long professionnelId, @RequestBody RendezVous nouveauRendezVous) {
+        try {
+            rendezVousService.addRendezVous(professionnelId, nouveauRendezVous);
+            return ResponseEntity.ok("Le rendez-vous a été ajouté avec succès.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Erreur lors de l'ajout du rendez-vous : " + e.getMessage());
+        }
+    }
 
 }

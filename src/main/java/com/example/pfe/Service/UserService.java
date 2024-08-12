@@ -1,15 +1,23 @@
 package com.example.pfe.Service;
 
+import com.example.pfe.Domain.PasswordResetToken;
+import com.example.pfe.Domain.Role;
 import com.example.pfe.Domain.RoleName;
 import com.example.pfe.Domain.User;
-import com.example.pfe.Repo.ClientRepo;
-import com.example.pfe.Repo.ProfessionnelRepo;
-import com.example.pfe.Repo.UserRepo;
+import com.example.pfe.Repo.*;
+import io.opencensus.internal.DefaultVisibilityForTesting;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.mail.SimpleMailMessage;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +31,16 @@ public class UserService {
 
     @Autowired
     private ProfessionnelRepo professionnelRepo;
+    @Autowired
+    private RoleRepo roleRepo;
 
     @Autowired
     private ClientRepo clientRepo;
+    @Autowired
+    private JavaMailSender mailSender;
+    @Autowired
+    private PasswordTokenRepository passwordTokenRepository;
+
 
     public List<User> getAllUsers() {
         return userRepo.findAll();
@@ -93,6 +108,20 @@ public class UserService {
         return userRepo.findUsersByRoleName(RoleName.PROFESSIONAL);
     }
 
+
+    public void changePassword(User user, String newPassword) {
+        user.setPassword(newPassword); // Ensure password is encoded before saving
+        userRepo.save(user);
+    }
+    public User findByEmail(String email) {
+        return userRepo.findByEmail(email);
+    }
+
+    public List<User> getProfessionalsByServiceName(String serviceName) {
+        System.out.println("Service Name: " + serviceName);
+        return userRepo.findProfessionalsByServiceName(serviceName);
+
+    }
 
 
 }

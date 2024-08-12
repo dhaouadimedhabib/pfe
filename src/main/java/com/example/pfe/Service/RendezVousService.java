@@ -1,9 +1,6 @@
 package com.example.pfe.Service;
 
-import com.example.pfe.Domain.Disponibilite;
-import com.example.pfe.Domain.Professionnel;
-import com.example.pfe.Domain.RendezVous;
-import com.example.pfe.Domain.User;
+import com.example.pfe.Domain.*;
 import com.example.pfe.Model.DisponibiliteDTO;
 import com.example.pfe.Model.RendezVousDTO;
 import com.example.pfe.Repo.DisponibiliteRepo;
@@ -15,8 +12,12 @@ import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -140,98 +141,8 @@ public class RendezVousService {
                 .collect(Collectors.toList());
     }
 
-    /*public boolean ajouterRendezVous(String token, RendezVousDTO nouveauRendezVousDTO) {
-        // Etape 1: Identifier le professionnel à partir du token JWT
-        String username = getUserNameFromJwtToken(token);
-        User user = userRepo.findByUsername(username);
-        if (user == null || user.getProfessionnel() == null) {
-            System.out.println("Erreur : Utilisateur ou Professionnel non trouvé.");
-            return false;
-        }
-        Professionnel professionnel = user.getProfessionnel();
-
-        // Etape 2: Vérifier la disponibilité du créneau
-        List<Disponibilite> disponibilites = disponibiliteRepo.findAllByProfessionnel(professionnel);
-        boolean estDansDisponibilite = disponibilites.stream().anyMatch(disponibilite ->
-                nouveauRendezVousDTO.getDate().isEqual(disponibilite.getDate()) &&
-                        !nouveauRendezVousDTO.getDebut().isBefore(disponibilite.getHeureDebut()) &&
-                        !nouveauRendezVousDTO.getFin().isAfter(disponibilite.getHeureFin())
-        );
-
-        if (!estDansDisponibilite) {
-            System.out.println("Le créneau demandé n'est pas disponible dans les disponibilités du professionnel.");
-            return false;
-        }
-
-        // Etape 3: Vérifier les chevauchements de rendez-vous
-        List<RendezVous> rendezVousExistants = rendezVousRepo.findAllByProfessional(professionnel);
-        boolean estCreneauLibre = rendezVousExistants.stream().noneMatch(rendezVous ->
-                // Vérifier tous les cas de chevauchement
-                !nouveauRendezVousDTO.getFin().isBefore(rendezVous.getDebut()) && !nouveauRendezVousDTO.getDebut().isAfter(rendezVous.getFin())
-        );
-
-        if (!estCreneauLibre) {
-            System.out.println("Le créneau n'est pas libre, il y a un chevauchement avec un autre rendez-vous.");
-            return false;
-        }
-
-        // Etape 4: Sauvegarder le nouveau rendez-vous
-        RendezVous nouveauRendezVous = new RendezVous();
-        // Mapper nouveauRendezVousDTO à nouveauRendezVous ici, en incluant le professionnel
-        nouveauRendezVous.setDate(nouveauRendezVousDTO.getDate());
-        nouveauRendezVous.setDebut(nouveauRendezVousDTO.getDebut());
-        nouveauRendezVous.setFin(nouveauRendezVousDTO.getFin());
-        nouveauRendezVous.setStatuts(nouveauRendezVousDTO.getStatuts());
-        nouveauRendezVous.setProfessional(professionnel);
-        rendezVousRepo.save(nouveauRendezVous);
-
-        return true;
-    }*/
 
 
-    public boolean ajouterRendezVous(Long professionnelId, RendezVousDTO nouveauRendezVousDTO) {
-        // Etape 1: Récupérer le professionnel à partir de son ID
-        Professionnel professionnel = professionnelRepo.findById(professionnelId).orElse(null);
-        if (professionnel == null) {
-            System.out.println("Erreur : Professionnel non trouvé.");
-            return false;
-        }
-
-        // Etape 2: Vérifier la disponibilité du créneau
-        List<Disponibilite> disponibilites = disponibiliteRepo.findAllByProfessionnel(professionnel);
-        boolean estDansDisponibilite = disponibilites.stream().anyMatch(disponibilite ->
-                nouveauRendezVousDTO.getDate().isEqual(disponibilite.getDate()) &&
-                        !nouveauRendezVousDTO.getDebut().isBefore(disponibilite.getHeureDebut()) &&
-                        !nouveauRendezVousDTO.getFin().isAfter(disponibilite.getHeureFin())
-        );
-
-        if (!estDansDisponibilite) {
-            System.out.println("Le créneau demandé n'est pas disponible dans les disponibilités du professionnel.");
-            return false;
-        }
-
-        // Etape 3: Vérifier les chevauchements de rendez-vous
-        List<RendezVous> rendezVousExistants = rendezVousRepo.findAllByProfessional(professionnel);
-        boolean estCreneauLibre = rendezVousExistants.stream().noneMatch(rendezVous ->
-                !nouveauRendezVousDTO.getFin().isBefore(rendezVous.getDebut()) && !nouveauRendezVousDTO.getDebut().isAfter(rendezVous.getFin())
-        );
-
-        if (!estCreneauLibre) {
-            System.out.println("Le créneau n'est pas libre, il y a un chevauchement avec un autre rendez-vous.");
-            return false;
-        }
-
-        // Etape 4: Sauvegarder le nouveau rendez-vous
-        RendezVous nouveauRendezVous = new RendezVous();
-        nouveauRendezVous.setDate(nouveauRendezVousDTO.getDate());
-        nouveauRendezVous.setDebut(nouveauRendezVousDTO.getDebut());
-        nouveauRendezVous.setFin(nouveauRendezVousDTO.getFin());
-        nouveauRendezVous.setStatuts(nouveauRendezVousDTO.getStatuts());
-        nouveauRendezVous.setProfessional(professionnel);
-        rendezVousRepo.save(nouveauRendezVous);
-
-        return true;
-    }
 
 
 
@@ -279,4 +190,20 @@ public class RendezVousService {
     public Optional<RendezVous> findById(Long id) {
         return rendezVousRepo.findById(id);
     }
+
+
+    @Transactional
+    public void addRendezVous(Long professionnelId, RendezVous rendezVous) {
+        // Find the professional by ID
+        Professionnel professionnel = professionnelRepo.findById(professionnelId)
+                .orElseThrow(() -> new IllegalArgumentException("Professionnel non trouvé avec l'ID : " + professionnelId));
+
+        // Associate the professional with the rendez-vous
+        rendezVous.setProfessional(professionnel);
+
+        // Save the rendez-vous to the database
+        rendezVousRepo.save(rendezVous);
+    }
+
+
 }

@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalTime;
 
@@ -25,6 +26,7 @@ public class RendezVous {
     @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long appointmentId;
+    @Nullable
     private LocalDate date;
     private LocalTime debut; // Date et heure de début du rendez-vous
     private LocalTime fin;

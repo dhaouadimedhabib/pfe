@@ -21,6 +21,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // Autoriser l'accès à /api/auth/signin sans authentification
                 .antMatchers("/api/auth/signin").permitAll()
                 .antMatchers("/api/auth/signup").permitAll()
+                .antMatchers("/api/auth/*").permitAll()
                 .antMatchers("/api/RendezVous/*").permitAll()
                 .antMatchers("/api/Professionnel/*").permitAll()
                 .antMatchers("/api/reclamation/*").permitAll()

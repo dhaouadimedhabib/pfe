@@ -1,10 +1,13 @@
 package com.example.pfe.Service;
 
+import com.example.pfe.Domain.Notification;
 import com.example.pfe.Domain.Reclamation;
+import com.example.pfe.Repo.NotificationRepo;
 import com.example.pfe.Repo.ReclamationRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,8 +15,14 @@ import java.util.Optional;
 public class ReclamationService {
     @Autowired
     ReclamationRepo reclamationRepo;
+    @Autowired
+    NotificationRepo notificationRepo;
     public Reclamation saveReclamation(Reclamation reclamation) {
-
+        Notification notification = new Notification(
+                "Nouvelle Demande de Swap",
+                OffsetDateTime.now().toInstant()
+        );
+        notificationRepo.save(notification);
         return reclamationRepo.save(reclamation);
     }
 

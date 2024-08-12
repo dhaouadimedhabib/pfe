@@ -1,5 +1,6 @@
 package com.example.pfe.Repo;
 
+import com.example.pfe.Domain.Role;
 import com.example.pfe.Domain.RoleName;
 import com.example.pfe.Domain.User;
 
@@ -52,4 +53,13 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     User findByUserId(Long userId);
 
+
+
+
+
+    @Query("SELECT u FROM User u "
+            + "JOIN u.professionnel p "
+            + "JOIN p.service s "
+            + "WHERE s.nom LIKE %:serviceName%")
+    List<User> findProfessionalsByServiceName(@Param("serviceName") String serviceName);
 }

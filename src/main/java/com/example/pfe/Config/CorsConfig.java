@@ -13,7 +13,7 @@ import java.util.List;
 
 @Configuration
 @EnableAutoConfiguration
-public class CorsConfig implements  WebMvcConfigurer  {
+public class CorsConfig     {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -21,19 +21,14 @@ public class CorsConfig implements  WebMvcConfigurer  {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:4200")  // L'origine exacte
+                .allowedOrigins("http://10.0.2.2:8084") // URL de votre application Flutter
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
 
     }
         };
     }
- /*   @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS); // Ignorer la casse des énumérations
 
-        return mapper;
-    }*/
 
 
 

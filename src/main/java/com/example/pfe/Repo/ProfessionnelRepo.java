@@ -12,4 +12,5 @@ import java.util.List;
 public interface ProfessionnelRepo extends JpaRepository<Professionnel, Long> {
     @Transactional
     void deleteByUserUserId(Long userId);
+
 }

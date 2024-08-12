@@ -11,9 +11,11 @@ import lombok.Setter;
 @Setter
 public class DisponibiliteDTO {
     private Long idDisponibilite;
-    private DayOfWeek jour;
-    private LocalTime heureDebut;
-    private LocalTime heureFin;
+  //  private DayOfWeek jour;
+    private LocalTime heureDebut1;
+    private LocalTime heureFin1;
+    private LocalTime heureDebut2;
+    private LocalTime heureFin2;
     private LocalDate date;
     private Long professionnelId;
 

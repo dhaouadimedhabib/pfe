@@ -1,6 +1,9 @@
 package com.example.pfe.Domain;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.util.List;
@@ -9,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Professionnel  {
     @Id
     @Column(nullable = false, updatable = false)
@@ -22,14 +25,6 @@ public class Professionnel  {
 
     public void setIdProfessionnel(Long idProfessionnel) {
         this.idProfessionnel = idProfessionnel;
-    }
-
-    public List<Service> getServicesProposés() {
-        return servicesProposés;
-    }
-
-    public void setServicesProposés(List<Service> servicesProposés) {
-        this.servicesProposés = servicesProposés;
     }
 
     public List<RendezVous> getRendezVous() {
@@ -56,23 +51,12 @@ public class Professionnel  {
         this.user = user;
     }
 
-    public Professionnel(Long idProfessionnel, List<Service> servicesProposés, List<RendezVous> rendezVous, List<Disponibilite> disponibilites, User user) {
-        this.idProfessionnel = idProfessionnel;
-        this.servicesProposés = servicesProposés;
-        this.rendezVous = rendezVous;
-        this.disponibilites = disponibilites;
-        this.user = user;
-    }
-
-    @ManyToMany
-    @JoinTable(
-            name = "professionnel_service",
-            joinColumns = @JoinColumn(name = "professionnel_id"),
-            inverseJoinColumns = @JoinColumn(name = "service_id")
-    )
-    private List<Service> servicesProposés;
 
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "service_id", referencedColumnName = "serviceId")
+    @JsonIgnore
+    private Services service;
 
     @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RendezVous> rendezVous;

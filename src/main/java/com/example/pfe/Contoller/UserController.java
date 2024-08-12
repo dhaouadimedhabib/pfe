@@ -1,6 +1,9 @@
 package com.example.pfe.Contoller;
 
+import com.example.pfe.Domain.Role;
+import com.example.pfe.Domain.RoleName;
 import com.example.pfe.Domain.User;
+import com.example.pfe.Repo.RoleRepo;
 import com.example.pfe.Service.UserService;
 import com.example.pfe.exception.ResourceNotFoundException;
 import com.example.pfe.payload.response.MessageResponse;
@@ -22,6 +25,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private RoleRepo roleRepo;
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -57,6 +62,18 @@ public class UserController {
     public User getUserById(@PathVariable Long userId) {
         return userService.getUserById(userId);
     }
+
+    @GetMapping("/professionals/filter")
+    public ResponseEntity<List<User>> getProfessionalsByServiceName(@RequestParam("serviceName") String serviceName) {
+        List<User> professionals = userService.getProfessionalsByServiceName(serviceName);
+        if (professionals.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(professionals);
+    }
+
+
+
 }
 
 

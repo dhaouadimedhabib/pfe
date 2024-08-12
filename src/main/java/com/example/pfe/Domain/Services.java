@@ -1,6 +1,9 @@
 package com.example.pfe.Domain;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +12,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.List;
 
 @NoArgsConstructor
 @Entity
@@ -17,9 +19,9 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-
 @AllArgsConstructor
-public class Service {
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Services {
     @Id
     @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +30,8 @@ public class Service {
     private String description;
     private Duration duree;
     private BigDecimal prix;
-    @ManyToMany(mappedBy = "servicesProposés", cascade = CascadeType.ALL)
-    private List<Professionnel> professionnels;
+    @OneToOne( cascade = CascadeType.ALL)
+    @JoinColumn(name = "professionnel_id", referencedColumnName = "idProfessionnel")
+    @JsonIgnore
+    private Professionnel professionnel;
 }
